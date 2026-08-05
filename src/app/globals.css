@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: "Montserrat", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+html,
+body {
+  background-color: theme("colors.paper");
+  color: theme("colors.slate");
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures for stats + countdowns so numbers stop jittering (PRD §11) */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* thin scrollbar for the horizontal deal rail */
+.rail::-webkit-scrollbar {
+  height: 8px;
+}
+.rail::-webkit-scrollbar-thumb {
+  background: theme("colors.mist");
+  border-radius: 9999px;
+}
