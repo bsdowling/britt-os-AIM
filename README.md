@@ -94,14 +94,31 @@ so the exact same computations run in both modes.
 
 1. Create a Supabase project (paid tier — the free tier pauses and cron fails
    silently, PRD §10).
-2. Run the migrations in `supabase/migrations/` (SQL editor or Supabase CLI):
-   `0001_init.sql` then `0002_templates_seed.sql`.
-3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-   `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
-4. (Optional) Seed sample data into the live DB: `npm run seed`.
+2. **Build the database.** Open the Supabase **SQL Editor** and paste/run
+   [`supabase/setup_all.sql`](supabase/setup_all.sql) — one file containing the
+   schema, task templates, and sample data, in order. (Or run the pieces
+   separately: `migrations/0001_init.sql`, `migrations/0002_templates_seed.sql`,
+   then `seed.sql`.) With direct DB access you can instead `npm run seed`.
+3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the
+   `sb_publishable_...` key), and `SUPABASE_SERVICE_ROLE_KEY` (the `sb_secret_...`
+   key) in `.env.local`.
+4. Run `npm run dev` — the demo banner disappears and the dashboard shows live rows.
 5. Add Follow Up Boss (`FUB_API_KEY`, `FUB_WEBHOOK_SECRET`) and register the
    webhook at `/api/webhooks/fub`.
 6. Deploy to Vercel; `vercel.json` wires the cron jobs. Set `CRON_SECRET`.
+
+> **Regenerating the seed SQL:** `npx tsx scripts/gen-seed-sql.ts` rewrites
+> `supabase/seed.sql` (and re-bundle with the migrations into `setup_all.sql`).
+> Sample dates are relative to generation time, so regenerate for fresh-looking demo data.
+
+### Security note — Row Level Security
+
+The schema ships **without RLS policies** (PRD §2: "RLS is there when a client
+portal or a future assistant login is added"). For a single operator behind
+magic-link auth that's the intended starting point, but the `anon`/publishable
+key is exposed to the browser, so **before exposing anything publicly**, enable
+RLS on the data tables and add policies. The public client portal reads through
+a server route, so it does not require broad anon access.
 
 Cron schedules are set for Central Time in UTC; jobs re-check the local hour
 internally so the twice-a-year DST shift needs no file edit (PRD §10).
